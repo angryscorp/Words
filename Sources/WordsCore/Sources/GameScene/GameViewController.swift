@@ -12,18 +12,34 @@ final class GameViewController: UIViewController {
     private let translateIsCorrectButton = UIButton(type: .system)
     private let translateIsWrongButton = UIButton(type: .system)
     
+    private let makeGameOver: () -> Void
     private var subscriptions = Set<AnyCancellable>()
     private var viewModel: GameViewModel?
-        
+    
+    init(makeGameOver: @escaping () -> Void) {
+        self.makeGameOver = makeGameOver
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     func bind(_ state: AnyPublisher<GameState, Never>, viewModel: GameViewModel) {
         self.viewModel = viewModel
         
         state
             .sink { [weak self] state in
-                self?.originLabel.text = state.wordsPair.origin
-                self?.translateLabel.text = state.wordsPair.translate
-                self?.totalAttempts.text = "Correct attemts: \(state.totalRounds - state.totalFailures)"
-                self?.totalFailures.text = "Wrong attemts: \(state.totalFailures)"
+                switch state.mode {
+                case let .next(wordsPair):
+                    self?.originLabel.text = wordsPair.origin
+                    self?.translateLabel.text = wordsPair.translate
+                    self?.totalAttempts.text = "Correct attemts: \(state.totalRounds - state.totalFailures)"
+                    self?.totalFailures.text = "Wrong attemts: \(state.totalFailures)"
+
+                case .gameOver:
+                    self?.makeGameOver()
+                }
             }
             .store(in: &subscriptions)
     }

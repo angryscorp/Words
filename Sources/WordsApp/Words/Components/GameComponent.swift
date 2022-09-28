@@ -12,7 +12,12 @@ struct GameComponent {
     func makeGame() {
         GameScene.create(
             presentViewController: { parent.window.rootViewController = $0 },
-            wordsGenerator: wordsGenerator
+            wordsGenerator: wordsGenerator,
+            makeGameOver: makeGameOver
         )
+    }
+    
+    private func makeGameOver() {
+        exit(0)
     }
 }
