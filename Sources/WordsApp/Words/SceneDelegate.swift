@@ -3,6 +3,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    var rootComponent: RootComponent?
 
     func scene(
         _ scene: UIScene,
@@ -13,8 +14,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
         
-        window = UIWindow(windowScene: scene)
-        window?.rootViewController = UIViewController()
-        window?.makeKeyAndVisible()
+        let window = UIWindow(windowScene: scene)
+        self.window = window
+        
+        rootComponent = RootComponent(window: window)
+        rootComponent?.makeRoot()
     }
 }

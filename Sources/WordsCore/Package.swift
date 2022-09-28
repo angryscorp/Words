@@ -8,15 +8,36 @@ let package = Package(
         .library(
             name: "WordsCore",
             targets: [
-                "WordsCore",
+                "Domain",
+                "WordsGenerator",
+                "WordsGeneratorImpl",
+                "GameInteraction",
+                "GameScene",
             ]
         ),
     ],
     targets: [
-        .target(name: "WordsCore"),        
-        .testTarget(
-            name: "WordsCoreTests",
-            dependencies: ["WordsCore"]
+        .target(name: "Domain"),
+        .target(
+            name: "WordsGenerator",
+            dependencies: ["Domain"]
+        ),
+        .target(
+            name: "WordsGeneratorImpl",
+            dependencies: ["Domain", "WordsGenerator"],
+            resources: [.copy("Resources/words.json")]
+        ),
+        .target(
+            name: "GameInteraction",
+            dependencies: ["Domain", "WordsGenerator"]
+        ),
+        .target(
+            name: "GameScene",
+            dependencies: [
+                "Domain",
+                "WordsGenerator",
+                "GameInteraction"
+            ]
         )
     ]
 )

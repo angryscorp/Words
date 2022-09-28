@@ -13,6 +13,8 @@
 		035A1E4C28E2C3FE0017C2EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 035A1E4A28E2C3FE0017C2EE /* LaunchScreen.storyboard */; };
 		035A1E5728E2C3FF0017C2EE /* WordsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A1E5628E2C3FF0017C2EE /* WordsTests.swift */; };
 		03A059A528E2C8B50078B9D3 /* WordsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 03A059A428E2C8B50078B9D3 /* WordsCore */; };
+		03BB2C8128E4491D007E0A1B /* GameComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BB2C7D28E4491D007E0A1B /* GameComponent.swift */; };
+		03BB2C8228E4491D007E0A1B /* RootComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BB2C7E28E4491D007E0A1B /* RootComponent.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +36,8 @@
 		035A1E4D28E2C3FE0017C2EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035A1E5228E2C3FF0017C2EE /* WordsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WordsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A1E5628E2C3FF0017C2EE /* WordsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsTests.swift; sourceTree = "<group>"; };
+		03BB2C7D28E4491D007E0A1B /* GameComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameComponent.swift; sourceTree = "<group>"; };
+		03BB2C7E28E4491D007E0A1B /* RootComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootComponent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +86,7 @@
 				035A1E4828E2C3FE0017C2EE /* Assets.xcassets */,
 				035A1E4A28E2C3FE0017C2EE /* LaunchScreen.storyboard */,
 				035A1E4D28E2C3FE0017C2EE /* Info.plist */,
+				03BB2C7B28E448E3007E0A1B /* Components */,
 			);
 			path = Words;
 			sourceTree = "<group>";
@@ -99,6 +104,15 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		03BB2C7B28E448E3007E0A1B /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				03BB2C7E28E4491D007E0A1B /* RootComponent.swift */,
+				03BB2C7D28E4491D007E0A1B /* GameComponent.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -206,6 +220,8 @@
 			files = (
 				035A1E4028E2C3FE0017C2EE /* AppDelegate.swift in Sources */,
 				035A1E4228E2C3FE0017C2EE /* SceneDelegate.swift in Sources */,
+				03BB2C8228E4491D007E0A1B /* RootComponent.swift in Sources */,
+				03BB2C8128E4491D007E0A1B /* GameComponent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
