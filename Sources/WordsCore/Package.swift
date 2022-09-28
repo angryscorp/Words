@@ -13,6 +13,7 @@ let package = Package(
                 "WordsGeneratorImpl",
                 "GameInteraction",
                 "GameScene",
+                "GameOverScene"
             ]
         ),
     ],
@@ -38,6 +39,14 @@ let package = Package(
                 "WordsGenerator",
                 "GameInteraction"
             ]
+        ),
+        .target(
+            name: "GameOverScene",
+            dependencies: ["Domain"]
+        ),
+        .testTarget(
+            name: "GameInteractionTests",
+            dependencies: ["Domain", "GameInteraction", "WordsGenerator"]
         )
     ]
 )

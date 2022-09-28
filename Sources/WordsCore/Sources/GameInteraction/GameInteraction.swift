@@ -18,12 +18,9 @@ private enum UserInput {
     }
 }
 
+
 public final class GameViewModel {
     
-    private static let totalRounds = 15
-    private static let totalFailures = 3
-    private static let timeLimitInSeconds = 5.0
-
     public var state: AnyPublisher<GameState, Never> {
         stateSubject
             .handleEvents(receiveOutput: { [weak self] in self?.startTimer($0) })
@@ -32,14 +29,30 @@ public final class GameViewModel {
 
     private let stateSubject: CurrentValueSubject<GameState, Never>
     private let wordsGenerator: WordsGenerator
+    private let gameSettings: GameSettings
     
-    public init(wordsGenerator: WordsGenerator) {
+    public init(wordsGenerator: WordsGenerator, gameSettings: GameSettings = .default) {
         self.wordsGenerator = wordsGenerator
-        self.stateSubject = .init(.init(mode: .next(wordsGenerator.generate()), totalFailures: 0, totalRounds: 0))
+        self.gameSettings = gameSettings
+        self.stateSubject = .init(.init(mode: .idle))
     }
     
     public func userFeedback(isCorrect: Bool) {
         userFeedback(.userChoice(isCorrect))
+    }
+    
+    public func start() {
+        pushNextRound(totalFailures: 0, totalRounds: 0)
+    }
+    
+    private func pushNextRound(totalFailures: Int, totalRounds: Int) {
+        let round = GameState.Round(
+            wordsPair: wordsGenerator.generate(),
+            timeForAnswer: gameSettings.timeLimitInSeconds,
+            totalFailures: totalFailures,
+            totalRounds: totalRounds
+        )
+        stateSubject.send(.init(mode: .next(round)))
     }
     
     private func userFeedback(_ userInput: UserInput) {
@@ -48,25 +61,16 @@ public final class GameViewModel {
             return
         }
         
-        let totalRounds = stateSubject.value.totalRounds + 1
-        let userAnswerIsCorrect = userInput.isCorrect.map { currentState.isCorrect == $0 } ?? false
-        let totalFailures = stateSubject.value.totalFailures + (userAnswerIsCorrect ? 0 : 1)
+        let totalRounds = currentState.totalRounds + 1
+        let userAnswerIsCorrect = userInput.isCorrect.map { currentState.wordsPair.isCorrect == $0 } ?? false
+        let totalFailures = currentState.totalFailures + (userAnswerIsCorrect ? 0 : 1)
         
-        if totalFailures == Self.totalFailures || totalRounds == Self.totalRounds {
-            let newState = GameState(
-                mode: .gameOver,
-                totalFailures: totalFailures,
-                totalRounds: totalRounds
-            )
-            stateSubject.send(newState)
+        if totalFailures == gameSettings.totalFailures || totalRounds == gameSettings.totalRounds {
+            let gameResult = GameResult(totalRounds: totalRounds, totalFailures: totalFailures)
+            stateSubject.send(.init(mode: .gameOver(gameResult)))
             stateSubject.send(completion: .finished)
         } else {
-            let newState = GameState(
-                mode: .next(wordsGenerator.generate()),
-                totalFailures: totalFailures,
-                totalRounds: totalRounds
-            )
-            stateSubject.send(newState)
+            pushNextRound(totalFailures: totalFailures, totalRounds: totalRounds)
         }
     }
         
@@ -75,7 +79,7 @@ public final class GameViewModel {
             return
         }
         Timer.scheduledTimer(
-            timeInterval: Self.timeLimitInSeconds,
+            timeInterval: gameSettings.timeLimitInSeconds,
             target: self,
             selector: #selector(stopTimer),
             userInfo: gameState,

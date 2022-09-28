@@ -12,11 +12,12 @@ final class GameViewController: UIViewController {
     private let translateIsCorrectButton = UIButton(type: .system)
     private let translateIsWrongButton = UIButton(type: .system)
     
-    private let makeGameOver: () -> Void
+    private let makeGameOver: (GameResult) -> Void
     private var subscriptions = Set<AnyCancellable>()
     private var viewModel: GameViewModel?
+    private var translateLabelConstraint: NSLayoutConstraint?
     
-    init(makeGameOver: @escaping () -> Void) {
+    init(makeGameOver: @escaping (GameResult) -> Void) {
         self.makeGameOver = makeGameOver
         super.init(nibName: nil, bundle: nil)
     }
@@ -31,14 +32,14 @@ final class GameViewController: UIViewController {
         state
             .sink { [weak self] state in
                 switch state.mode {
-                case let .next(wordsPair):
-                    self?.originLabel.text = wordsPair.origin
-                    self?.translateLabel.text = wordsPair.translate
-                    self?.totalAttempts.text = "Correct attemts: \(state.totalRounds - state.totalFailures)"
-                    self?.totalFailures.text = "Wrong attemts: \(state.totalFailures)"
+                case let .next(round):
+                    self?.handleRound(round)
 
-                case .gameOver:
-                    self?.makeGameOver()
+                case let .gameOver(gameResult):
+                    self?.makeGameOver(gameResult)
+                    
+                case .idle:
+                    break
                 }
             }
             .store(in: &subscriptions)
@@ -48,6 +49,12 @@ final class GameViewController: UIViewController {
         super.viewDidLoad()
         setup()
         layout()
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        viewModel?.start()
     }
     
     private func setup() {
@@ -85,6 +92,9 @@ final class GameViewController: UIViewController {
             view.addSubview(subview)
         }
         
+        translateLabelConstraint = translateLabel.bottomAnchor.constraint(equalTo: originLabel.topAnchor, constant: -32)
+        translateLabelConstraint?.isActive = true
+        
         NSLayoutConstraint.activate([
             totalAttempts.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             totalAttempts.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor, constant: -16),
@@ -93,11 +103,10 @@ final class GameViewController: UIViewController {
             translateLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
             translateLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
             translateLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            translateLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             originLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
             originLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
             originLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            originLabel.topAnchor.constraint(equalTo: translateLabel.bottomAnchor, constant: 32),
+            originLabel.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             translateIsCorrectButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             translateIsWrongButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             translateIsCorrectButton.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor, constant: 16),
@@ -107,6 +116,22 @@ final class GameViewController: UIViewController {
             translateIsCorrectButton.heightAnchor.constraint(equalTo: translateIsCorrectButton.widthAnchor, multiplier: 0.4),
             translateIsCorrectButton.heightAnchor.constraint(equalTo: translateIsWrongButton.heightAnchor)
         ])
+    }
+    
+    private func handleRound(_ round: GameState.Round) {
+        originLabel.text = round.wordsPair.origin
+        translateLabel.text = round.wordsPair.translate
+        totalAttempts.text = "Correct attemts: \(round.totalRounds - round.totalFailures)"
+        totalFailures.text = "Wrong attemts: \(round.totalFailures)"
+
+        translateLabelConstraint?.constant -= translateLabel.frame.maxY
+        translateLabel.layer.removeAllAnimations()
+        view.layoutIfNeeded()
+
+        translateLabelConstraint?.constant = -32
+        UIView.animate(withDuration: round.timeForAnswer, delay: 0, options: [.curveEaseIn]) {
+            self.view.layoutIfNeeded()
+        }
     }
     
     @objc

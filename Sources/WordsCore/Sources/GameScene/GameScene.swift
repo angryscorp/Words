@@ -7,7 +7,7 @@ public enum GameScene {
     public static func create(
         presentViewController: (UIViewController) -> Void,
         wordsGenerator: WordsGenerator,
-        makeGameOver: @escaping () -> Void
+        makeGameOver: @escaping (GameResult) -> Void
     ) {
         let viewModel = GameViewModel(wordsGenerator: wordsGenerator)
         

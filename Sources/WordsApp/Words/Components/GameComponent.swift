@@ -17,7 +17,8 @@ struct GameComponent {
         )
     }
     
-    private func makeGameOver() {
-        exit(0)
+    private func makeGameOver(gameResult: GameResult) {
+        GameOverComponent(parent: self)
+            .makeGameOver(gameResult: gameResult)
     }
 }
